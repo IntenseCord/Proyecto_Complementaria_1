@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Error 403 - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <i class="fas fa-ban fa-5x text-warning mb-4"></i>
+            <h1 class="display-4 mb-3">Error 403</h1>
+            <h3 class="mb-4">Acceso Prohibido</h3>
+            <p class="lead text-muted mb-4">
+                No tienes permiso para acceder a este recurso. Si crees que esto es un error, por favor contacta al administrador.
+            </p>
+            <div class="d-flex gap-3 justify-content-center">
+                <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+                    <i class="fas fa-home me-2"></i>Volver al Inicio
+                </a>
+                <a href="{{ url_for('auth.login') }}" class="btn btn-outline-secondary btn-lg">
+                    <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

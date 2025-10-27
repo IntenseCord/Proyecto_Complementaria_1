@@ -1,0 +1,567 @@
+{% extends "base.html" %}
+
+{% block title %}Configurador de PC - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-4 fw-bold">Configurador de PC Gaming</h1>
+        <p class="lead text-muted">Construye tu PC perfecta paso a paso con nuestras recomendaciones inteligentes</p>
+    </div>
+</div>
+
+<!-- Selector de Presupuesto y Uso -->
+<div class="row mb-5">
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="row g-4">
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark">Presupuesto Total</label>
+                        <select class="form-select form-select-lg" id="budget-select">
+                            <option value="800">Básico - $800 (Gaming 1080p básico)</option>
+                            <option value="1200" selected>Equilibrado - $1,200 (Gaming 1080p/1440p)</option>
+                            <option value="1800">Avanzado - $1,800 (Gaming 1440p/4K)</option>
+                            <option value="2500">Premium - $2,500+ (Gaming 4K máximo rendimiento)</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label fw-bold text-dark">Uso Principal</label>
+                        <select class="form-select form-select-lg" id="usage-select">
+                            <option value="gaming" selected>Gaming</option>
+                            <option value="streaming">Streaming/Gaming</option>
+                            <option value="content">Creación de Contenido</option>
+                            <option value="workstation">Workstation Profesional</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Configuración Actual -->
+<div class="row mb-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 text-dark fw-bold">
+                    <i class="fas fa-desktop me-2 text-primary"></i>Tu Configuración Actual
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-4">
+                    <!-- CPU -->
+                    <div class="col-md-6">
+                        <div class="component-slot" id="cpu-slot">
+                            <div class="slot-header">
+                                <i class="fas fa-microchip me-2"></i>
+                                <span>Procesador</span>
+                                <button class="btn btn-sm btn-outline-primary ms-auto" onclick="selectComponent('CPU')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="slot-content" id="cpu-content">
+                                <p class="text-secondary">Selecciona un procesador</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- GPU -->
+                    <div class="col-md-6">
+                        <div class="component-slot" id="gpu-slot">
+                            <div class="slot-header">
+                                <i class="fas fa-video me-2"></i>
+                                <span>Tarjeta Gráfica</span>
+                                <button class="btn btn-sm btn-outline-primary ms-auto" onclick="selectComponent('GPU')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="slot-content" id="gpu-content">
+                                <p class="text-secondary">Selecciona una tarjeta gráfica</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- RAM -->
+                    <div class="col-md-6">
+                        <div class="component-slot" id="ram-slot">
+                            <div class="slot-header">
+                                <i class="fas fa-memory me-2"></i>
+                                <span>Memoria RAM</span>
+                                <button class="btn btn-sm btn-outline-primary ms-auto" onclick="selectComponent('RAM')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="slot-content" id="ram-content">
+                                <p class="text-secondary">Selecciona memoria RAM</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Motherboard -->
+                    <div class="col-md-6">
+                        <div class="component-slot" id="motherboard-slot">
+                            <div class="slot-header">
+                                <i class="fas fa-server me-2"></i>
+                                <span>Placa Base</span>
+                                <button class="btn btn-sm btn-outline-primary ms-auto" onclick="selectComponent('Placa Madre')">
+                                    <i class="fas fa-plus"></i>
+                                </button>
+                            </div>
+                            <div class="slot-content" id="motherboard-content">
+                                <p class="text-secondary">Selecciona una placa base</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resumen de Configuración -->
+                <div class="row mt-4">
+                    <div class="col">
+                        <div class="config-summary p-3 bg-light rounded">
+                            <div class="row text-center">
+                                <div class="col-md-4">
+                                    <h4 class="text-primary mb-1" id="total-price">$0.00</h4>
+                                    <small class="text-dark">Precio Total</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <h5 class="mb-1 text-dark" id="performance-level">Básico</h5>
+                                    <small class="text-dark">Nivel de Rendimiento</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <button class="btn btn-success" id="finalize-build-btn" disabled>
+                                        <i class="fas fa-shopping-cart me-2"></i>Finalizar Compra
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Selector de Componentes Modal -->
+<div class="modal fade" id="componentModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="componentModalLabel">Seleccionar Componente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="component-options" id="component-options">
+                    <!-- Las opciones se cargarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recomendaciones Automáticas -->
+<div class="row mb-4">
+    <div class="col">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center bg-white border-bottom">
+                <h5 class="mb-0 text-dark fw-bold">
+                    <i class="fas fa-lightbulb me-2 text-warning"></i>Recomendaciones Inteligentes
+                </h5>
+                <button class="btn btn-sm btn-primary shadow-sm" id="auto-recommend-btn">
+                    <i class="fas fa-magic me-1"></i>Auto-recomendar
+                </button>
+            </div>
+            <div class="card-body">
+                <div class="row g-3" id="recommendations-container">
+                    <div class="col-12 text-center">
+                        <p class="text-secondary mb-3">Selecciona componentes o usa auto-recomendación para ver sugerencias</p>
+                        <div class="alert alert-info border-0" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);">
+                            <i class="fas fa-info-circle me-2 text-primary"></i>
+                            <strong class="text-dark">Nuestras recomendaciones están basadas en:</strong>
+                            <ul class="mb-0 mt-2 text-dark text-start">
+                                <li>Tu presupuesto seleccionado</li>
+                                <li>El uso principal que especificaste</li>
+                                <li>La compatibilidad entre componentes</li>
+                                <li>Las últimas reseñas y benchmarks</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Juegos Recomendados para tu Setup -->
+<div class="row">
+    <div class="col">
+        <div class="card">
+            <div class="card-header bg-white border-bottom">
+                <h5 class="mb-0 text-dark fw-bold">
+                    <i class="fas fa-gamepad me-2 text-success"></i>Juegos Recomendados para tu Setup
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3" id="recommended-games">
+                    <div class="col-12 text-center">
+                        <p class="text-secondary">Completa tu configuración para ver juegos recomendados</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let currentBuild = {
+    CPU: null,
+    GPU: null,
+    RAM: null,
+    'Placa Madre': null
+};
+
+let componentsData = {};
+
+// Cargar datos de componentes al iniciar
+document.addEventListener('DOMContentLoaded', function() {
+    loadComponentsData();
+
+    // Event listeners
+    document.getElementById('budget-select').addEventListener('change', updateRecommendations);
+    document.getElementById('usage-select').addEventListener('change', updateRecommendations);
+    document.getElementById('auto-recommend-btn').addEventListener('click', autoRecommend);
+    document.getElementById('finalize-build-btn').addEventListener('click', finalizeBuild);
+});
+
+// Cargar datos de componentes desde el servidor
+async function loadComponentsData() {
+    try {
+        const response = await fetch('/api/hardware/tipos');
+        const data = await response.json();
+
+        console.log('Tipos de hardware disponibles:', data.tipos);
+
+        // Para cada tipo, cargar los componentes disponibles
+        for (const tipo of data.tipos) {
+            const compResponse = await fetch(`/api/hardware/buscar?tipo=${encodeURIComponent(tipo)}`);
+            const compData = await compResponse.json();
+            componentsData[tipo] = compData.resultados;
+            console.log(`Cargados ${compData.resultados.length} componentes de tipo ${tipo}`);
+        }
+    } catch (error) {
+        console.error('Error cargando datos de componentes:', error);
+    }
+}
+
+// Función para seleccionar componente
+function selectComponent(tipo) {
+    const modal = new bootstrap.Modal(document.getElementById('componentModal'));
+    const modalLabel = document.getElementById('componentModalLabel');
+    const optionsContainer = document.getElementById('component-options');
+
+    modalLabel.textContent = `Seleccionar ${tipo}`;
+    optionsContainer.innerHTML = '';
+
+    const componentes = componentsData[tipo] || [];
+
+    componentes.forEach(componente => {
+        const componentCard = document.createElement('div');
+        componentCard.className = 'component-option card mb-2';
+        componentCard.innerHTML = `
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-2">
+                        <img src="${componente.imagen}" class="img-fluid rounded" alt="${componente.modelo}">
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="mb-1">${componente.marca} ${componente.modelo}</h6>
+                        <p class="text-muted small mb-0">${componente.descripcion}</p>
+                    </div>
+                    <div class="col-md-2">
+                        <strong class="text-primary">$${componente.precio}</strong>
+                    </div>
+                    <div class="col-md-2">
+                        <button class="btn btn-primary btn-sm w-100" onclick="chooseComponent('${tipo}', ${componente.id})">
+                            Seleccionar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `;
+        optionsContainer.appendChild(componentCard);
+    });
+
+    modal.show();
+}
+
+// Elegir componente específico
+function chooseComponent(tipo, componenteId) {
+    const componentes = componentsData[tipo] || [];
+    const componente = componentes.find(c => c.id === componenteId);
+
+    if (componente) {
+        currentBuild[tipo] = componente;
+        updateComponentSlot(tipo, componente);
+        updateTotalPrice();
+        updateRecommendations();
+
+        // Cerrar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('componentModal'));
+        modal.hide();
+
+        // Verificar si la build está completa
+        checkBuildComplete();
+    }
+}
+
+// Actualizar slot de componente
+function updateComponentSlot(tipo, componente) {
+    // Normalizar el tipo para el ID del slot
+    let slotId = tipo.toLowerCase().replace(/ /g, '-');
+    if (tipo === 'Placa Madre') {
+        slotId = 'motherboard';
+    }
+    
+    const slotContent = document.getElementById(`${slotId}-content`);
+    
+    if (!slotContent) {
+        console.error(`No se encontró el elemento con id: ${slotId}-content`);
+        return;
+    }
+
+    if (componente === null) {
+        // Restaurar el mensaje por defecto
+        const tipoNombre = tipo === 'CPU' ? 'un procesador' :
+                          tipo === 'GPU' ? 'una tarjeta gráfica' :
+                          tipo === 'RAM' ? 'memoria RAM' :
+                          tipo === 'Placa Madre' ? 'una placa base' : 'un componente';
+        slotContent.innerHTML = `<p class="text-secondary">Selecciona ${tipoNombre}</p>`;
+    } else {
+        slotContent.innerHTML = `
+            <div class="d-flex align-items-center">
+                <img src="${componente.imagen}" class="img-thumbnail me-3" style="width: 50px; height: 50px;" alt="${componente.modelo}">
+                <div class="flex-grow-1">
+                    <h6 class="mb-1">${componente.marca} ${componente.modelo}</h6>
+                    <p class="text-primary mb-0">$${componente.precio}</p>
+                </div>
+                <button class="btn btn-sm btn-outline-danger" onclick="removeComponent('${tipo}')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        `;
+    }
+}
+
+// Remover componente
+function removeComponent(tipo) {
+    currentBuild[tipo] = null;
+    updateComponentSlot(tipo, null);
+    updateTotalPrice();
+    updateRecommendations();
+    checkBuildComplete();
+}
+
+// Actualizar precio total
+function updateTotalPrice() {
+    const total = Object.values(currentBuild)
+        .filter(componente => componente !== null)
+        .reduce((sum, componente) => sum + componente.precio, 0);
+
+    document.getElementById('total-price').textContent = `$${total.toFixed(2)}`;
+}
+
+// Verificar si la build está completa
+function checkBuildComplete() {
+    const completedComponents = Object.values(currentBuild).filter(c => c !== null).length;
+    const finalizeBtn = document.getElementById('finalize-build-btn');
+
+    if (completedComponents >= 3) { // Al menos CPU, GPU y RAM
+        finalizeBtn.disabled = false;
+    } else {
+        finalizeBtn.disabled = true;
+    }
+}
+
+// Auto-recomendación
+function autoRecommend() {
+    const budget = parseInt(document.getElementById('budget-select').value);
+    const usage = document.getElementById('usage-select').value;
+
+    // Lógica simple de recomendación basada en presupuesto
+    const tipos = ['CPU', 'GPU', 'RAM', 'Placa Madre'];
+    tipos.forEach(tipo => {
+        if (!currentBuild[tipo]) {
+            const componentes = componentsData[tipo] || [];
+            let recommended;
+
+            switch(tipo) {
+                case 'CPU':
+                    recommended = budget >= 1500 ?
+                        componentes.find(c => c.marca === 'AMD' && c.modelo.includes('7600')) :
+                        componentes.find(c => c.marca === 'Intel' && c.modelo.includes('12400'));
+                    break;
+                case 'GPU':
+                    recommended = budget >= 2000 ?
+                        componentes.find(c => c.marca === 'NVIDIA' && c.modelo.includes('4060')) :
+                        componentes.find(c => c.marca === 'NVIDIA' && c.modelo.includes('4060'));
+                    break;
+                case 'RAM':
+                    recommended = componentes.find(c => c.especificaciones && c.especificaciones.capacidad === '16 GB');
+                    break;
+                case 'Placa Madre':
+                    recommended = componentes.find(c => c.socket === 'AM4' || c.socket === 'LGA 1700');
+                    break;
+            }
+
+            if (recommended) {
+                chooseComponent(tipo, recommended.id);
+            }
+        }
+    });
+
+    updateRecommendations();
+}
+
+// Actualizar recomendaciones
+function updateRecommendations() {
+    const container = document.getElementById('recommendations-container');
+    const completedComponents = Object.values(currentBuild).filter(c => c !== null).length;
+
+    if (completedComponents === 0) {
+        container.innerHTML = `
+            <div class="col-12 text-center">
+                <p class="text-muted mb-3">Selecciona componentes o usa auto-recomendación para ver sugerencias</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Mostrar recomendaciones basadas en componentes seleccionados
+    let recommendations = [];
+
+    if (currentBuild.CPU && currentBuild.GPU) {
+        recommendations.push(`
+            <div class="col-md-6">
+                <div class="alert alert-success">
+                    <i class="fas fa-thumbs-up me-2"></i>
+                    <strong>¡Excelente combinación!</strong> Tu CPU y GPU están bien balanceados.
+                </div>
+            </div>
+        `);
+    }
+
+    if (currentBuild.RAM && parseInt(currentBuild.RAM.especificaciones.capacidad) >= 16) {
+        recommendations.push(`
+            <div class="col-md-6">
+                <div class="alert alert-info">
+                    <i class="fas fa-memory me-2"></i>
+                    <strong>Buena cantidad de RAM</strong> para gaming moderno y multitasking.
+                </div>
+            </div>
+        `);
+    }
+
+    container.innerHTML = recommendations.join('');
+}
+
+// Finalizar build
+function finalizeBuild() {
+    const totalPrice = Object.values(currentBuild)
+        .filter(c => c !== null)
+        .reduce((sum, c) => sum + c.precio, 0);
+
+    showToast(`¡Build finalizada! Total: $${totalPrice.toFixed(2)}`, 'success');
+
+    // Aquí podrías redirigir a checkout o mostrar más detalles
+}
+
+function showToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = `toast align-items-center text-white bg-${type} border-0`;
+    toast.innerHTML = `
+        <div class="d-flex">
+            <div class="toast-body">${message}</div>
+            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+        </div>
+    `;
+
+    document.body.appendChild(toast);
+    const bsToast = new bootstrap.Toast(toast);
+    bsToast.show();
+
+    setTimeout(() => {
+        if (document.body.contains(toast)) {
+            document.body.removeChild(toast);
+        }
+    }, 3000);
+}
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.component-slot {
+    border: 2px dashed #dee2e6;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+}
+
+.component-slot:hover {
+    border-color: #0d6efd;
+    background: #f0f8ff;
+}
+
+.slot-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid #dee2e6;
+    color: #212529;
+    font-weight: 600;
+}
+
+.slot-content {
+    min-height: 60px;
+}
+
+.config-summary {
+    border-top: 2px solid #0d6efd;
+}
+
+.component-option {
+    transition: transform 0.2s ease;
+}
+
+.component-option:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+#component-options {
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+@media (max-width: 768px) {
+    .component-slot {
+        padding: 0.75rem;
+    }
+
+    .slot-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .slot-header .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

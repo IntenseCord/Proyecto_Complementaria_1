@@ -1,0 +1,347 @@
+{% extends "base.html" %}
+
+{% block title %}Hardware Gaming - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-4 fw-bold">Hardware Gaming</h1>
+        <p class="lead text-muted">Componentes de alto rendimiento para tu setup gaming perfecto</p>
+    </div>
+</div>
+
+<!-- Categorías de Hardware -->
+<div class="row mb-5">
+    <div class="col">
+        <div class="categories-nav mb-4">
+            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                <a href="#all" class="btn btn-outline-primary active" data-category="all">Todo</a>
+                <a href="#cpu" class="btn btn-outline-primary" data-category="CPU">Procesadores</a>
+                <a href="#gpu" class="btn btn-outline-primary" data-category="GPU">Tarjetas Gráficas</a>
+                <a href="#ram" class="btn btn-outline-primary" data-category="RAM">Memoria RAM</a>
+                <a href="#motherboard" class="btn btn-outline-primary" data-category="Placa Madre">Placas Base</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Productos de Hardware -->
+<div class="row g-4" id="hardware-container">
+    {% for componente in hardware %}
+    <div class="col-lg-3 col-md-4 col-sm-6 hardware-item" data-category="{{ componente.tipo }}">
+        <div class="card h-100 product-card">
+            <div class="card-img-container">
+                <img src="{{ componente.imagen }}" class="card-img-top" alt="{{ componente.modelo }}">
+                <div class="card-img-overlay d-flex align-items-center justify-content-center opacity-0 hover-overlay">
+                    <a href="/hardware/{{ componente.id }}" class="btn btn-primary">Ver Detalles</a>
+                </div>
+                <span class="badge bg-info position-absolute top-0 end-0 m-2">{{ componente.tipo }}</span>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ componente.marca }} {{ componente.modelo }}</h5>
+                <p class="card-text text-muted flex-grow-1">{{ componente.descripcion }}</p>
+
+                <!-- Especificaciones rápidas -->
+                <div class="quick-specs mb-3">
+                    {% if componente.tipo == 'CPU' %}
+                        <small class="text-muted">
+                            <i class="fas fa-microchip me-1"></i>{{ componente.especificaciones.nucleos }} Núcleos |
+                            <i class="fas fa-tachometer-alt me-1"></i>{{ componente.especificaciones.frecuencia_base }}
+                        </small>
+                    {% elif componente.tipo == 'GPU' %}
+                        <small class="text-muted">
+                            <i class="fas fa-memory me-1"></i>{{ componente.especificaciones.memoria }} |
+                            <i class="fas fa-bolt me-1"></i>{{ componente.especificaciones.consumo }}
+                        </small>
+                    {% elif componente.tipo == 'RAM' %}
+                        <small class="text-muted">
+                            <i class="fas fa-memory me-1"></i>{{ componente.especificaciones.capacidad }} |
+                            <i class="fas fa-tachometer-alt me-1"></i>{{ componente.especificaciones.frecuencia }}
+                        </small>
+                    {% elif componente.tipo == 'Placa Madre' %}
+                        <small class="text-muted">
+                            <i class="fas fa-microchip me-1"></i>{{ componente.socket }} |
+                            <i class="fas fa-memory me-1"></i>{{ componente.especificaciones.ram_slots if componente.especificaciones and componente.especificaciones.ram_slots else 'DDR4' }}
+                        </small>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer bg-transparent border-0 p-0 mt-3">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="h5 text-primary mb-0">${{ "%.2f"|format(componente.precio) }}</span>
+                        <span class="badge bg-success">Disponible</span>
+                    </div>
+                    <div class="d-flex gap-2">
+                        <a href="/hardware/{{ componente.id }}" class="btn btn-outline-primary flex-fill">
+                            <i class="fas fa-eye me-1"></i>Ver
+                        </a>
+                        <button class="btn btn-primary flex-fill add-hardware-btn" data-hardware-id="{{ componente.id }}">
+                            <i class="fas fa-shopping-cart me-1"></i>Agregar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Configurador de PC Destacado -->
+<section class="pc-builder-highlight py-5 bg-light mt-5">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h2 class="mb-4 text-dark fw-bold">¿Necesitas ayuda para armar tu PC?</h2>
+                <p class="lead text-secondary mb-4">
+                    Usa nuestro configurador de PC inteligente para encontrar los componentes perfectos para tu presupuesto y necesidades gaming.
+                </p>
+                <div class="features-list mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-check-circle text-success me-3 fa-lg"></i>
+                        <span class="text-dark">Recomendaciones personalizadas basadas en tu presupuesto</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-check-circle text-success me-3 fa-lg"></i>
+                        <span class="text-dark">Verificación automática de compatibilidad</span>
+                    </div>
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fas fa-check-circle text-success me-3 fa-lg"></i>
+                        <span class="text-dark">Comparación de rendimiento entre componentes</span>
+                    </div>
+                </div>
+                <a href="/configurador-pc" class="btn btn-primary btn-lg shadow-sm">
+                    <i class="fas fa-cogs me-2"></i>Probar Configurador de PC
+                </a>
+            </div>
+            <div class="col-lg-4 text-center">
+                <i class="fas fa-desktop fa-6x text-primary opacity-75"></i>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Guía de Compra -->
+<section class="buying-guide py-5">
+    <div class="container">
+        <div class="row mb-5">
+            <div class="col text-center">
+                <h2 class="display-5 fw-bold">Guía de Compra de Hardware</h2>
+                <p class="lead text-muted">Consejos para elegir los mejores componentes</p>
+            </div>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="guide-card">
+                    <div class="guide-icon mb-3">
+                        <i class="fas fa-brain fa-3x text-primary"></i>
+                    </div>
+                    <h4>Considera tu presupuesto</h4>
+                    <p class="text-muted">
+                        Define cuánto estás dispuesto a invertir. Nuestros componentes están categorizados por rangos de precio para facilitar tu elección.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="guide-card">
+                    <div class="guide-icon mb-3">
+                        <i class="fas fa-gamepad fa-3x text-primary"></i>
+                    </div>
+                    <h4>Piensa en los juegos que juegas</h4>
+                    <p class="text-muted">
+                        ¿Juegas juegos AAA actuales o títulos más antiguos? Esto determinará los requisitos de hardware necesarios.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="guide-card">
+                    <div class="guide-icon mb-3">
+                        <i class="fas fa-futbol fa-3x text-primary"></i>
+                    </div>
+                    <h4>Planea futuras actualizaciones</h4>
+                    <p class="text-muted">
+                        Elige componentes con margen de mejora. Una buena placa base te permitirá actualizar CPU y RAM en el futuro.
+                    </p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="guide-card">
+                    <div class="guide-icon mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4>Verifica compatibilidad</h4>
+                    <p class="text-muted">
+                        Usa nuestro verificador de compatibilidad para asegurar que todos los componentes funcionen juntos perfectamente.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Filtros de categorías
+    const categoryButtons = document.querySelectorAll('[data-category]');
+    const hardwareItems = document.querySelectorAll('.hardware-item');
+
+    // Debug: Log de todas las categorías disponibles
+    console.log('Total de productos:', hardwareItems.length);
+    hardwareItems.forEach(item => {
+        console.log('Producto con categoría:', item.getAttribute('data-category'));
+    });
+
+    categoryButtons.forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+
+            const category = this.getAttribute('data-category');
+            console.log('Filtrando por categoría:', category);
+
+            // Actualizar botones activos
+            categoryButtons.forEach(btn => btn.classList.remove('active'));
+            this.classList.add('active');
+
+            // Filtrar productos
+            let visibleCount = 0;
+            hardwareItems.forEach(item => {
+                const itemCategory = item.getAttribute('data-category');
+                if (category === 'all' || itemCategory === category) {
+                    visibleCount++;
+                    item.style.display = 'block';
+                    // Animación de aparición
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        item.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+                        item.style.opacity = '1';
+                        item.style.transform = 'translateY(0)';
+                    }, 50);
+                } else {
+                    item.style.opacity = '0';
+                    item.style.transform = 'translateY(20px)';
+                    setTimeout(() => {
+                        item.style.display = 'none';
+                    }, 300);
+                }
+            });
+            console.log('Productos visibles después del filtro:', visibleCount);
+
+            // Scroll suave hacia los productos
+            const container = document.getElementById('hardware-container');
+            if (container) {
+                container.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
+
+    // Botones de agregar al carrito
+    document.querySelectorAll('.add-hardware-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const hardwareId = this.getAttribute('data-hardware-id');
+
+            // Simular agregar al carrito
+            const toast = document.createElement('div');
+            toast.className = 'toast align-items-center text-white bg-success border-0';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        Hardware agregado al carrito
+                    </div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                </div>
+            `;
+
+            document.body.appendChild(toast);
+            const bsToast = new bootstrap.Toast(toast);
+            bsToast.show();
+
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 3000);
+        });
+    });
+
+    // Scroll suave para navegación por categorías
+    if (location.hash) {
+        const targetCategory = location.hash.substring(1);
+        const categoryButton = document.querySelector(`[data-category="${targetCategory}"]`);
+        if (categoryButton) {
+            categoryButton.click();
+        }
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.categories-nav {
+    position: sticky;
+    top: 80px;
+    background: white;
+    z-index: 100;
+    padding: 1rem 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border-radius: 10px;
+}
+
+.guide-card {
+    padding: 2rem;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+    transition: transform 0.3s ease;
+    height: 100%;
+}
+
+.guide-card:hover {
+    transform: translateY(-5px);
+}
+
+.guide-icon {
+    transition: transform 0.3s ease;
+}
+
+.guide-card:hover .guide-icon {
+    transform: scale(1.1);
+}
+
+.quick-specs {
+    background: #f8f9fa;
+    padding: 0.75rem;
+    border-radius: 5px;
+    margin-bottom: 1rem;
+}
+
+.hardware-item {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.pc-builder-highlight {
+    border-radius: 15px;
+}
+
+.features-list .fas {
+    flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+    .categories-nav {
+        position: static;
+        margin-bottom: 2rem;
+    }
+
+    .categories-nav .btn {
+        font-size: 0.875rem;
+        padding: 0.5rem 1rem;
+    }
+
+    .guide-card {
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,40 @@
+services:
+  web:
+    build: .
+    container_name: gametech-store
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_DEBUG=0
+      - SECRET_KEY=${SECRET_KEY:-your-secret-key-here}
+      - DATABASE_URL=${DATABASE_URL:-sqlite:///instance/gametech_store.db}
+    volumes:
+      - ./instance:/app/instance
+      - ./static:/app/static
+    restart: unless-stopped
+    networks:
+      - gametech-network
+
+  # Opcional: PostgreSQL (descomentar si quieres usar PostgreSQL en lugar de SQLite)
+  # db:
+  #   image: postgres:15-alpine
+  #   container_name: gametech-db
+  #   environment:
+  #     - POSTGRES_USER=gametech
+  #     - POSTGRES_PASSWORD=gametech_password
+  #     - POSTGRES_DB=gametech_store
+  #   volumes:
+  #     - postgres_data:/var/lib/postgresql/data
+  #   ports:
+  #     - "5432:5432"
+  #   networks:
+  #     - gametech-network
+  #   restart: unless-stopped
+
+networks:
+  gametech-network:
+    driver: bridge
+
+# volumes:
+#   postgres_data:

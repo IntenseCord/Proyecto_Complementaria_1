@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+
+{% block title %}Búsqueda - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-4 fw-bold">Resultados de Búsqueda</h1>
+        {% if query %}
+            <p class="lead text-muted">Mostrando resultados para: <strong>"{{ query }}"</strong></p>
+        {% else %}
+            <p class="lead text-muted">Ingresa términos de búsqueda para encontrar juegos y hardware</p>
+        {% endif %}
+    </div>
+</div>
+
+{% if not query %}
+    <!-- Buscador principal cuando no hay query -->
+    <div class="row mb-5">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                    <h3 class="mb-3">¿Qué estás buscando?</h3>
+                    <p class="text-muted mb-4">Encuentra juegos, hardware y componentes específicos</p>
+                    <form action="/buscar" method="GET" class="d-flex justify-content-center">
+                        <div class="input-group" style="max-width: 500px;">
+                            <input type="search" name="q" class="form-control form-control-lg" placeholder="Buscar juegos, procesadores, tarjetas gráficas..." required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search me-2"></i>Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sugerencias populares -->
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header bg-white border-bottom">
+                    <h5 class="mb-0 text-dark fw-bold"><i class="fas fa-fire me-2 text-danger"></i>Búsquedas Populares</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="/buscar?q=Cyberpunk%202077" class="btn btn-outline-primary">Cyberpunk 2077</a>
+                        <a href="/buscar?q=RTX%204060" class="btn btn-outline-primary">RTX 4060</a>
+                        <a href="/buscar?q=Intel%20Core%20i5" class="btn btn-outline-primary">Intel Core i5</a>
+                        <a href="/buscar?q=RAM%2016GB" class="btn btn-outline-primary">RAM 16GB</a>
+                        <a href="/buscar?q=AMD%20Ryzen" class="btn btn-outline-primary">AMD Ryzen</a>
+                        <a href="/buscar?q=Gaming%20laptop" class="btn btn-outline-primary">Gaming laptop</a>
+                        <a href="/buscar?q=Free%20games" class="btn btn-outline-primary">Juegos gratis</a>
+                        <a href="/buscar?q=Steam%20games" class="btn btn-outline-primary">Juegos Steam</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <!-- Resultados de búsqueda -->
+    {% if resultados.juegos or resultados.hardware %}
+        <!-- Juegos encontrados -->
+        {% if resultados.juegos %}
+        <div class="row mb-5">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 text-dark fw-bold">
+                            <i class="fas fa-gamepad me-2 text-primary"></i>
+                            Juegos ({{ resultados.juegos|length }} resultado{{ 's' if resultados.juegos|length != 1 else '' }})
+                        </h5>
+                        <a href="/tienda" class="btn btn-sm btn-primary shadow-sm">Ver todos los juegos</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            {% for juego in resultados.juegos %}
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="card h-100 product-card">
+                                    <div class="card-img-container">
+                                        <img src="{{ juego.imagen }}" class="card-img-top" alt="{{ juego.nombre }}">
+                                        <div class="card-img-overlay d-flex align-items-center justify-content-center opacity-0 hover-overlay">
+                                            <a href="/juego/{{ juego.id }}" class="btn btn-primary">Ver Detalles</a>
+                                        </div>
+                                        {% if juego.precio == 0 %}
+                                        <span class="badge bg-success position-absolute top-0 end-0 m-2">Gratis</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="card-body d-flex flex-column">
+                                        <h6 class="card-title">{{ juego.nombre }}</h6>
+                                        <p class="card-text text-muted flex-grow-1 small">{{ juego.descripcion[:80] }}...</p>
+                                        <div class="card-footer bg-transparent border-0 p-0 mt-2">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="text-primary fw-bold">
+                                                    {% if juego.precio == 0 %}
+                                                        Gratis
+                                                    {% else %}
+                                                        ${{ "%.2f"|format(juego.precio) }}
+                                                    {% endif %}
+                                                </span>
+                                                <span class="badge bg-secondary small">{{ juego.genero }}</span>
+                                            </div>
+                                            <a href="/juego/{{ juego.id }}" class="btn btn-outline-primary btn-sm w-100">
+                                                <i class="fas fa-eye me-1"></i>Ver Detalles
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Hardware encontrado -->
+        {% if resultados.hardware %}
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0 text-dark fw-bold">
+                            <i class="fas fa-microchip me-2 text-success"></i>
+                            Hardware ({{ resultados.hardware|length }} resultado{{ 's' if resultados.hardware|length != 1 else '' }})
+                        </h5>
+                        <a href="/hardware" class="btn btn-sm btn-success shadow-sm">Ver todo el hardware</a>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            {% for componente in resultados.hardware %}
+                            <div class="col-lg-3 col-md-4 col-sm-6">
+                                <div class="card h-100 product-card">
+                                    <div class="card-img-container">
+                                        <img src="{{ componente.imagen }}" class="card-img-top" alt="{{ componente.modelo }}">
+                                        <div class="card-img-overlay d-flex align-items-center justify-content-center opacity-0 hover-overlay">
+                                            <a href="/hardware/{{ componente.id }}" class="btn btn-primary">Ver Detalles</a>
+                                        </div>
+                                    </div>
+                                    <div class="card-body d-flex flex-column">
+                                        <h6 class="card-title">{{ componente.marca }} {{ componente.modelo }}</h6>
+                                        <p class="card-text text-muted flex-grow-1 small">{{ componente.descripcion }}</p>
+                                        <div class="card-footer bg-transparent border-0 p-0 mt-2">
+                                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                                <span class="text-primary fw-bold">${{ "%.2f"|format(componente.precio) }}</span>
+                                                <span class="badge bg-info small">{{ componente.tipo }}</span>
+                                            </div>
+                                            <a href="/hardware/{{ componente.id }}" class="btn btn-outline-primary btn-sm w-100">
+                                                <i class="fas fa-eye me-1"></i>Ver Detalles
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        <!-- Sin resultados -->
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                        <h3 class="mb-3">No se encontraron resultados</h3>
+                        <p class="text-muted mb-4">
+                            No encontramos productos que coincidan con tu búsqueda "<strong>{{ query }}</strong>".
+                        </p>
+
+                        <div class="suggestions mb-4">
+                            <h5>¿Querías decir?</h5>
+                            <div class="d-flex flex-wrap gap-2 justify-content-center">
+                                <a href="/buscar?q=Cyberpunk" class="btn btn-outline-primary">Cyberpunk</a>
+                                <a href="/buscar?q=RTX" class="btn btn-outline-primary">RTX</a>
+                                <a href="/buscar?q=Intel" class="btn btn-outline-primary">Intel</a>
+                                <a href="/buscar?q=Gaming" class="btn btn-outline-primary">Gaming</a>
+                            </div>
+                        </div>
+
+                        <div class="search-tips">
+                            <h5>Consejos para buscar:</h5>
+                            <ul class="text-start mx-auto" style="max-width: 400px;">
+                                <li>Usa términos específicos como "RTX 4060" o "Intel Core i5"</li>
+                                <li>Prueba con el nombre exacto del juego</li>
+                                <li>Incluye la marca del producto</li>
+                                <li>Usa palabras clave como "gaming", "procesador", "tarjeta gráfica"</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.card {
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    border: none;
+}
+
+.product-card {
+    transition: transform 0.3s ease;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+}
+
+.search-suggestions {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.search-suggestions a {
+    color: white;
+    text-decoration: none;
+}
+
+.search-suggestions a:hover {
+    color: #f8f9fa;
+}
+
+.suggestions {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 10px;
+    margin: 2rem 0;
+}
+
+.search-tips {
+    background: #e9ecef;
+    padding: 2rem;
+    border-radius: 10px;
+    margin: 2rem 0;
+}
+
+.search-tips ul {
+    list-style: none;
+    padding: 0;
+}
+
+.search-tips li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.search-tips li:last-child {
+    border-bottom: none;
+}
+
+@media (max-width: 768px) {
+    .display-4 {
+        font-size: 2rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+    }
+
+    .suggestions, .search-tips {
+        padding: 1rem;
+        margin: 1rem 0;
+    }
+}
+</style>
+{% endblock %}

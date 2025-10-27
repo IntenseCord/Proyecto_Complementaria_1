@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+
+{% block title %}{{ categoria | title }} - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col">
+        <h1 class="display-4 fw-bold">{{ categoria | title }}</h1>
+        <p class="lead text-muted">Componentes {{ categoria.lower() }} de alto rendimiento para tu setup gaming</p>
+        <a href="/hardware" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Volver a Hardware
+        </a>
+    </div>
+</div>
+
+<!-- Productos de Hardware por Categoría -->
+<div class="row g-4">
+    {% for componente in componentes %}
+    <div class="col-lg-3 col-md-4 col-sm-6">
+        <div class="card h-100 product-card">
+            <div class="card-img-container">
+                <img src="{{ componente.imagen }}" class="card-img-top" alt="{{ componente.modelo }}">
+                <div class="card-img-overlay d-flex align-items-center justify-content-center opacity-0 hover-overlay">
+                    <a href="/hardware/{{ componente.id }}" class="btn btn-primary">Ver Detalles</a>
+                </div>
+                <span class="badge bg-info position-absolute top-0 end-0 m-2">{{ componente.tipo }}</span>
+            </div>
+            <div class="card-body d-flex flex-column">
+                <h5 class="card-title">{{ componente.marca }} {{ componente.modelo }}</h5>
+                <p class="card-text text-muted flex-grow-1">{{ componente.descripcion }}</p>
+
+                <!-- Especificaciones rápidas -->
+                <div class="quick-specs mb-3">
+                    {% if componente.tipo == 'CPU' %}
+                        <small class="text-muted">
+                            <i class="fas fa-microchip me-1"></i>{{ componente.get_especificaciones().nucleos }} Núcleos |
+                            <i class="fas fa-tachometer-alt me-1"></i>{{ componente.get_especificaciones().frecuencia_base }}
+                        </small>
+                    {% elif componente.tipo == 'GPU' %}
+                        <small class="text-muted">
+                            <i class="fas fa-memory me-1"></i>{{ componente.get_especificaciones().memoria }} |
+                            <i class="fas fa-bolt me-1"></i>{{ componente.get_especificaciones().consumo }}
+                        </small>
+                    {% elif componente.tipo == 'RAM' %}
+                        <small class="text-muted">
+                            <i class="fas fa-memory me-1"></i>{{ componente.get_especificaciones().capacidad }} |
+                            <i class="fas fa-tachometer-alt me-1"></i>{{ componente.get_especificaciones().frecuencia }}
+                        </small>
+                    {% endif %}
+                </div>
+
+                <div class="mt-auto">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="h5 mb-0 text-success">${{ "%.2f"|format(componente.precio) }}</span>
+                        <span class="badge bg-secondary">{{ componente.stock }} en stock</span>
+                    </div>
+                    <button class="btn btn-primary w-100 add-to-cart" data-product-id="{{ componente.id }}" data-product-type="hardware">
+                        <i class="fas fa-shopping-cart me-2"></i>Agregar al Carrito
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not componentes %}
+<div class="row">
+    <div class="col text-center py-5">
+        <h3 class="text-muted">No hay componentes disponibles en esta categoría</h3>
+        <a href="/hardware" class="btn btn-primary">Ver Todo el Hardware</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

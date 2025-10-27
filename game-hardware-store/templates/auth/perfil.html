@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Mi Perfil - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card shadow">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="fas fa-user-circle fa-5x text-primary"></i>
+                    </div>
+                    <h4>{{ user.username }}</h4>
+                    <p class="text-muted">{{ user.email }}</p>
+                    <hr>
+                    <p class="small text-muted">
+                        Miembro desde: {{ user.created_at.strftime('%d/%m/%Y') }}
+                    </p>
+                    <a href="{{ url_for('auth.editar_perfil') }}" class="btn btn-primary btn-sm">
+                        <i class="fas fa-edit me-2"></i>Editar Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-8">
+            <div class="card shadow mb-4">
+                <div class="card-header bg-gradient-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-shopping-bag me-2"></i>Mis Órdenes Recientes</h5>
+                </div>
+                <div class="card-body">
+                    {% if user.orders.count() > 0 %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Orden #</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for order in user.orders.limit(5).all() %}
+                                    <tr>
+                                        <td>#{{ order.id }}</td>
+                                        <td>{{ order.created_at.strftime('%d/%m/%Y') }}</td>
+                                        <td>${{ "%.2f"|format(order.total) }}</td>
+                                        <td>
+                                            {% if order.status == 'completed' %}
+                                                <span class="badge bg-success">Completada</span>
+                                            {% elif order.status == 'pending' %}
+                                                <span class="badge bg-warning">Pendiente</span>
+                                            {% else %}
+                                                <span class="badge bg-danger">Cancelada</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <a href="{{ url_for('cart.orden_confirmada', order_id=order.id) }}" class="btn btn-sm btn-outline-primary">
+                                                Ver Detalles
+                                            </a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="text-center mt-3">
+                            <a href="{{ url_for('cart.mis_ordenes') }}" class="btn btn-outline-primary">
+                                Ver Todas las Órdenes
+                            </a>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5">
+                            <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+                            <p class="text-muted">Aún no has realizado ninguna compra</p>
+                            <a href="{{ url_for('store.tienda') }}" class="btn btn-primary">
+                                Explorar Tienda
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

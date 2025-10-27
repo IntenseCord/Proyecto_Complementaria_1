@@ -1,0 +1,62 @@
+# Environment variables
+.env
+
+# Database files
+instance/
+*.db
+*.sqlite
+
+# Logs
+logs/
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv
+virtualenv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+
+# Uploads
+static/uploads/
+
+# Secrets and keys
+secrets.json
+*.key
+
+# Docker (optional overrides)
+docker-compose.override.yml

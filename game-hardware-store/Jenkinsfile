@@ -1,0 +1,92 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'gametech-store'
+        DOCKER_TAG = "${BUILD_NUMBER}"
+        CONTAINER_NAME = 'gametech-store'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                echo 'Cloning repository...'
+                checkout scm
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                echo 'Building Docker image...'
+                script {
+                    docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    docker.build("${DOCKER_IMAGE}:latest")
+                }
+            }
+        }
+        
+        stage('Run Tests') {
+            steps {
+                echo 'Running tests...'
+                script {
+                    docker.image("${DOCKER_IMAGE}:${DOCKER_TAG}").inside {
+                        sh 'python -m pytest tests/ -v || true'
+                    }
+                }
+            }
+        }
+        
+        stage('Stop Old Container') {
+            steps {
+                echo 'Stopping old container...'
+                script {
+                    sh """
+                        docker stop ${CONTAINER_NAME} || true
+                        docker rm ${CONTAINER_NAME} || true
+                    """
+                }
+            }
+        }
+        
+        stage('Deploy') {
+            steps {
+                echo 'Deploying new container...'
+                script {
+                    sh """
+                        docker run -d \
+                            --name ${CONTAINER_NAME} \
+                            -p 5000:5000 \
+                            -e SECRET_KEY=\${SECRET_KEY} \
+                            -e DATABASE_URL=\${DATABASE_URL} \
+                            --restart unless-stopped \
+                            ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    """
+                }
+            }
+        }
+        
+        stage('Clean Up') {
+            steps {
+                echo 'Cleaning up old images...'
+                script {
+                    sh """
+                        docker image prune -f
+                    """
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            echo 'Pipeline completed successfully!'
+        }
+        failure {
+            echo 'Pipeline failed!'
+        }
+        always {
+            echo 'Cleaning up workspace...'
+            cleanWs()
+        }
+    }
+}

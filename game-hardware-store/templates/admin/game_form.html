@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Editar' if game else 'Nuevo' }} Juego - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-gamepad me-2"></i>{{ 'Editar' if game else 'Nuevo' }} Juego</h1>
+        </div>
+        <div class="col text-end">
+            <a href="{{ url_for('admin.games') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                
+                <!-- Información Básica -->
+                <h5 class="mb-3 text-primary"><i class="fas fa-info-circle me-2"></i>Información Básica</h5>
+                <div class="mb-3">
+                    <label for="title" class="form-label">Título *</label>
+                    <input type="text" class="form-control" id="title" name="title" 
+                           value="{{ game.nombre if game else '' }}" placeholder="Ej: Grand Theft Auto V" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label">Descripción *</label>
+                    <textarea class="form-control" id="description" name="description" rows="4" placeholder="Descripción detallada del juego..." required>{{ game.descripcion if game else '' }}</textarea>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-3">
+                        <label for="price" class="form-label">Precio ($) *</label>
+                        <input type="number" step="0.01" class="form-control" id="price" name="price" 
+                               value="{{ game.precio if game else '' }}" placeholder="29.99" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="stock" class="form-label">Stock *</label>
+                        <input type="number" class="form-control" id="stock" name="stock" 
+                               value="{{ game.stock if game else '' }}" placeholder="100" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="genre" class="form-label">Género *</label>
+                        <input type="text" class="form-control" id="genre" name="genre" 
+                               value="{{ game.genero if game else '' }}" placeholder="Ej: Acción" required>
+                    </div>
+                    <div class="col-md-3">
+                        <label for="release_date" class="form-label">Fecha de Lanzamiento *</label>
+                        <input type="date" class="form-control" id="release_date" name="release_date" 
+                               value="{{ game.fecha_lanzamiento.strftime('%Y-%m-%d') if game and game.fecha_lanzamiento else '' }}" required>
+                    </div>
+                </div>
+
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="developer" class="form-label">Desarrollador *</label>
+                        <input type="text" class="form-control" id="developer" name="developer" 
+                               value="{{ game.desarrollador if game else '' }}" placeholder="Ej: Rockstar Games" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="image_url" class="form-label">URL de Imagen</label>
+                        <input type="url" class="form-control" id="image_url" name="image_url" 
+                               value="{{ game.imagen if game else '' }}" placeholder="https://ejemplo.com/imagen.jpg">
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Requisitos Mínimos -->
+                <h5 class="mb-3 text-primary"><i class="fas fa-desktop me-2"></i>Requisitos Mínimos</h5>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="min_cpu" class="form-label">CPU</label>
+                        <input type="text" class="form-control" id="min_cpu" name="min_cpu" 
+                               value="{{ game.get_requisitos_minimos().get('CPU', '') if game else '' }}" placeholder="Ej: Intel Core 2 Quad Q6600">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="min_gpu" class="form-label">GPU</label>
+                        <input type="text" class="form-control" id="min_gpu" name="min_gpu" 
+                               value="{{ game.get_requisitos_minimos().get('GPU', '') if game else '' }}" placeholder="Ej: NVIDIA GeForce 9800 GT">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="min_ram" class="form-label">RAM</label>
+                        <input type="text" class="form-control" id="min_ram" name="min_ram" 
+                               value="{{ game.get_requisitos_minimos().get('RAM', '') if game else '' }}" placeholder="Ej: 4 GB">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="min_storage" class="form-label">Almacenamiento</label>
+                        <input type="text" class="form-control" id="min_storage" name="min_storage" 
+                               value="{{ game.get_requisitos_minimos().get('Almacenamiento', '') if game else '' }}" placeholder="Ej: 65 GB">
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <!-- Requisitos Recomendados -->
+                <h5 class="mb-3 text-primary"><i class="fas fa-star me-2"></i>Requisitos Recomendados</h5>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="rec_cpu" class="form-label">CPU</label>
+                        <input type="text" class="form-control" id="rec_cpu" name="rec_cpu" 
+                               value="{{ game.get_requisitos_recomendados().get('CPU', '') if game else '' }}" placeholder="Ej: Intel Core i5-3470">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="rec_gpu" class="form-label">GPU</label>
+                        <input type="text" class="form-control" id="rec_gpu" name="rec_gpu" 
+                               value="{{ game.get_requisitos_recomendados().get('GPU', '') if game else '' }}" placeholder="Ej: NVIDIA GeForce GTX 660">
+                    </div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label for="rec_ram" class="form-label">RAM</label>
+                        <input type="text" class="form-control" id="rec_ram" name="rec_ram" 
+                               value="{{ game.get_requisitos_recomendados().get('RAM', '') if game else '' }}" placeholder="Ej: 8 GB">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="rec_storage" class="form-label">Almacenamiento</label>
+                        <input type="text" class="form-control" id="rec_storage" name="rec_storage" 
+                               value="{{ game.get_requisitos_recomendados().get('Almacenamiento', '') if game else '' }}" placeholder="Ej: 65 GB">
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <a href="{{ url_for('admin.games') }}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Cancelar
+                    </a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>{{ 'Actualizar' if game else 'Crear' }} Juego
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,291 @@
+{% extends "base.html" %}
+
+{% block title %}{{ juego.nombre }} - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Información del Juego -->
+    <div class="col-lg-8">
+        <div class="card mb-4 shadow-sm">
+            <div class="row g-0">
+                <div class="col-md-5">
+                    <img src="{{ juego.imagen }}" class="img-fluid rounded-start" style="width: 100%; height: 100%; object-fit: cover; min-height: 400px;" alt="{{ juego.nombre }}">
+                </div>
+                <div class="col-md-7">
+                    <div class="card-body p-4">
+                        <h1 class="card-title mb-3 text-dark">{{ juego.nombre }}</h1>
+                        <div class="mb-3">
+                            <span class="badge bg-primary me-2">{{ juego.genero }}</span>
+                            <span class="badge bg-secondary">{{ juego.desarrollador }}</span>
+                        </div>
+                        <p class="card-text lead text-dark">{{ juego.descripcion }}</p>
+
+                        <div class="game-details mb-4">
+                            <h5 class="text-dark">Detalles del Juego</h5>
+                            <ul class="list-unstyled text-dark">
+                                <li><strong>Desarrollador:</strong> {{ juego.desarrollador }}</li>
+                                <li><strong>Fecha de Lanzamiento:</strong> {{ juego.fecha_lanzamiento }}</li>
+                                <li><strong>Género:</strong> {{ juego.genero }}</li>
+                            </ul>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary btn-lg flex-fill" id="add-to-cart-btn" data-juego-id="{{ juego.id }}">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                {% if juego.precio == 0 %}
+                                    Descargar Gratis
+                                {% else %}
+                                    Comprar por ${{ "%.2f"|format(juego.precio) }}
+                                {% endif %}
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" id="add-to-wishlist-btn">
+                                <i class="fas fa-heart me-2"></i>Lista de Deseos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Requisitos del Sistema -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-desktop me-2"></i>Requisitos del Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6 class="text-dark mb-3">Mínimos</h6>
+                        <ul class="list-unstyled text-dark">
+                            {% for requisito, valor in juego.requisitos_minimos_dict.items() %}
+                            <li class="mb-2"><strong>{{ requisito }}:</strong> {{ valor }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6 class="text-dark mb-3">Recomendados</h6>
+                        <ul class="list-unstyled text-dark">
+                            {% for requisito, valor in juego.requisitos_recomendados_dict.items() %}
+                            <li class="mb-2"><strong>{{ requisito }}:</strong> {{ valor }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verificador de Compatibilidad -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0"><i class="fas fa-search me-2"></i>¿Es Compatible con tu PC?</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">Tu CPU</label>
+                        <input type="text" class="form-control" id="user-cpu" placeholder="Ej: Intel Core i5-12400F">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tu GPU</label>
+                        <input type="text" class="form-control" id="user-gpu" placeholder="Ej: NVIDIA RTX 4060">
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">Tu RAM</label>
+                        <input type="text" class="form-control" id="user-ram" placeholder="Ej: 16 GB">
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <button class="btn btn-primary" id="check-compatibility-single-btn">
+                        <i class="fas fa-search me-2"></i>Verificar Compatibilidad
+                    </button>
+                </div>
+                <div id="compatibility-result" class="mt-3" style="display: none;">
+                    <!-- Resultado se mostrará aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Juegos Relacionados -->
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <h5 class="mb-0"><i class="fas fa-th-large me-2"></i>Juegos Relacionados</h5>
+            </div>
+            <div class="card-body">
+                {% for relacionado in juegos_relacionados %}
+                <div class="d-flex mb-3">
+                    <img src="{{ relacionado.imagen }}" class="img-thumbnail me-3" style="width: 60px; height: 60px;" alt="{{ relacionado.nombre }}">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1"><a href="/juego/{{ relacionado.id }}" class="text-decoration-none">{{ relacionado.nombre }}</a></h6>
+                        <p class="text-muted small mb-0">{{ relacionado.genero }}</p>
+                        <span class="text-primary small">
+                            {% if relacionado.precio == 0 %}
+                                Gratis
+                            {% else %}
+                                ${{ "%.2f"|format(relacionado.precio) }}
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Hardware Recomendado -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0"><i class="fas fa-microchip me-2"></i>Hardware Recomendado</h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-dark">Para requisitos mínimos:</h6>
+                    <div class="alert alert-info">
+                        <small class="text-dark">Basado en los requisitos mínimos del juego</small>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <h6 class="text-dark">Para requisitos recomendados:</h6>
+                    <div class="alert alert-success">
+                        <small class="text-dark">Para la mejor experiencia de juego</small>
+                    </div>
+                </div>
+                <a href="/hardware" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-shopping-bag me-2"></i>Ver Todo el Hardware
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Obtener token CSRF
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+
+    // Botón de agregar al carrito
+    document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+        const juegoId = this.getAttribute('data-juego-id');
+        
+        // Hacer petición AJAX para agregar al carrito
+        fetch('/carrito/agregar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken
+            },
+            body: JSON.stringify({
+                product_type: 'game',
+                product_id: juegoId,
+                quantity: 1
+            }),
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            // Si es 401 o 302, el usuario no está autenticado
+            if (response.status === 401 || response.status === 302) {
+                showToast('Debes iniciar sesión para agregar productos al carrito', 'warning');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1500);
+                return null;
+            }
+            
+            // Intentar parsear JSON incluso si hay error
+            return response.json();
+        })
+        .then(data => {
+            if (data && data.success) {
+                showToast(data.message, 'success');
+                
+                // Actualizar contador del carrito si existe
+                const cartBadge = document.querySelector('.cart-count');
+                if (cartBadge && data.cart_count) {
+                    cartBadge.textContent = data.cart_count;
+                }
+            } else if (data && !data.success) {
+                // Mostrar mensaje de error del servidor
+                showToast(data.message || 'Error al agregar al carrito', 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showToast('Error al procesar la solicitud', 'danger');
+        });
+    });
+
+    document.getElementById('add-to-wishlist-btn').addEventListener('click', function() {
+        showToast('Agregado a lista de deseos', 'info');
+    });
+
+    // Verificador de compatibilidad individual
+    document.getElementById('check-compatibility-single-btn').addEventListener('click', function() {
+        const cpu = document.getElementById('user-cpu').value;
+        const gpu = document.getElementById('user-gpu').value;
+        const ram = document.getElementById('user-ram').value;
+
+        if (!cpu && !gpu && !ram) {
+            alert('Por favor ingresa al menos una especificación de tu hardware.');
+            return;
+        }
+
+        const hardwareSpecs = {
+            cpu: cpu,
+            gpu: gpu,
+            ram: ram
+        };
+
+        // Mostrar loading
+        const resultDiv = document.getElementById('compatibility-result');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>';
+
+        // Aquí harías la petición AJAX para verificar compatibilidad específica
+        // Por simplicidad, mostraremos un resultado simulado
+        setTimeout(() => {
+            const compatible = Math.random() > 0.3; // 70% de probabilidad de ser compatible
+
+            if (compatible) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>¡Compatible!</strong> Tu hardware puede correr este juego sin problemas.
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Posible incompatibilidad</strong> Algunos componentes podrían necesitar actualización para la mejor experiencia.
+                    </div>
+                `;
+            }
+        }, 1000);
+    });
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type} border-0`;
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}

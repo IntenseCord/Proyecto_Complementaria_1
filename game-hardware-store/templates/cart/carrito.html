@@ -1,0 +1,187 @@
+{% extends "base.html" %}
+
+{% block title %}Carrito de Compras - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="text-center mb-5">
+        <h2 class="display-5 fw-bold mb-2">
+            <i class="fas fa-shopping-cart me-3" style="color: var(--primary-color);"></i>Mi Carrito
+        </h2>
+        <p class="text-muted">Revisa y gestiona tus productos</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if cart_items %}
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0 mb-4 cart-items-card">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0 fw-semibold">
+                                <i class="fas fa-box-open me-2 text-primary"></i>Productos en tu carrito
+                            </h5>
+                            <span class="badge bg-primary rounded-pill">{{ cart_items|length }} items</span>
+                        </div>
+                    </div>
+                    <div class="card-body p-4">
+                        {% for item in cart_items %}
+                            {% set product = item.get_product() %}
+                            {% if product %}
+                            <div class="cart-item-row mb-4 p-3 rounded-3 border">
+                                <div class="row g-3">
+                                    <div class="col-lg-2 col-md-3 col-sm-12">
+                                        <div class="cart-item-image">
+                                            <img src="{{ product.imagen }}" class="img-fluid rounded-3 shadow-sm" alt="{{ product.nombre if item.product_type == 'game' else product.modelo }}">
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-4 col-sm-12">
+                                        <h5 class="mb-2 fw-bold text-dark product-title">
+                                            {{ product.nombre if item.product_type == 'game' else (product.marca + ' ' + product.modelo) }}
+                                        </h5>
+                                        <div class="mb-2">
+                                            {% if item.product_type == 'game' %}
+                                                <span class="badge bg-info text-white"><i class="fas fa-gamepad me-1"></i>Juego</span>
+                                            {% else %}
+                                                <span class="badge bg-secondary text-white"><i class="fas fa-microchip me-1"></i>{{ product.tipo }}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div class="text-muted small">
+                                            <i class="fas fa-box me-1"></i>
+                                            Stock: <strong class="text-success">{{ product.stock }}</strong>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-3 col-md-3 col-sm-6">
+                                        <form method="POST" action="{{ url_for('cart.actualizar_cantidad', item_id=item.id) }}" class="quantity-form">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <label class="form-label small text-muted mb-2">
+                                                <i class="fas fa-sort-numeric-up me-1"></i>Cantidad
+                                            </label>
+                                            <div class="input-group">
+                                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ product.stock }}" class="form-control text-center fw-bold" style="max-width: 80px;">
+                                                <button type="submit" class="btn btn-outline-primary btn-sm" title="Actualizar">
+                                                    <i class="fas fa-sync-alt"></i>
+                                                </button>
+                                            </div>
+                                        </form>
+                                    </div>
+                                    <div class="col-lg-2 col-md-2 col-sm-4">
+                                        <div class="text-center">
+                                            <small class="text-muted d-block mb-1">Subtotal</small>
+                                            <p class="h5 text-primary fw-bold mb-0">${{ "%.2f"|format(item.get_subtotal()) }}</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-lg-2 col-md-12 col-sm-2 d-flex align-items-center justify-content-center">
+                                        <form method="POST" action="{{ url_for('cart.eliminar_del_carrito', item_id=item.id) }}">
+                                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                                            <button type="submit" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                                <i class="fas fa-trash-alt me-1"></i>Eliminar
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    <form method="POST" action="{{ url_for('cart.vaciar_carrito') }}" onsubmit="return confirm('¿Estás seguro de que deseas vaciar el carrito?');">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <button type="submit" class="btn btn-outline-danger">
+                            <i class="fas fa-trash-alt me-2"></i>Vaciar Carrito
+                        </button>
+                    </form>
+                    <a href="{{ url_for('store.tienda') }}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left me-2"></i>Seguir Comprando
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0 sticky-top" style="top: 20px;">
+                    <div class="card-header bg-gradient-primary text-white py-3">
+                        <h5 class="mb-0 d-flex align-items-center">
+                            <i class="fas fa-receipt me-2"></i>Resumen de Compra
+                        </h5>
+                    </div>
+                    <div class="card-body p-4">
+                        <div class="summary-details mb-4">
+                            <div class="d-flex justify-content-between mb-3 py-2">
+                                <span class="text-secondary"><i class="fas fa-shopping-bag me-2"></i>Subtotal:</span>
+                                <span class="fw-semibold text-dark">${{ "%.2f"|format(total) }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3 py-2">
+                                <span class="text-secondary"><i class="fas fa-truck me-2"></i>Envío:</span>
+                                <span class="badge bg-success">GRATIS</span>
+                            </div>
+                            <div class="d-flex justify-content-between mb-3 py-2">
+                                <span class="text-secondary"><i class="fas fa-percentage me-2"></i>IVA (19%):</span>
+                                <span class="fw-semibold text-dark">${{ "%.2f"|format(total * 0.19) }}</span>
+                            </div>
+                            <hr class="my-3">
+                            <div class="d-flex justify-content-between align-items-center p-3 bg-primary bg-opacity-10 rounded-3 border border-primary">
+                                <strong class="h6 mb-0 text-dark">Total a pagar:</strong>
+                                <strong class="h4 text-primary mb-0">${{ "%.2f"|format(total * 1.19) }}</strong>
+                            </div>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <a href="{{ url_for('cart.checkout') }}" class="btn btn-primary btn-lg py-3 shadow-sm checkout-btn">
+                                <i class="fas fa-credit-card me-2"></i>Proceder al Pago
+                            </a>
+                            <a href="{{ url_for('store.tienda') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>Seguir Comprando
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 mt-4">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-start mb-3">
+                            <div class="icon-box bg-success bg-opacity-10 rounded-circle p-3 me-3">
+                                <i class="fas fa-shield-alt text-success fa-lg"></i>
+                            </div>
+                            <div>
+                                <h6 class="mb-1 fw-semibold">Compra Segura</h6>
+                                <p class="small text-muted mb-0">Tus datos están protegidos con encriptación SSL</p>
+                            </div>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small class="text-secondary">Garantía de devolución</small>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-check-circle text-success me-2"></i>
+                            <small class="text-secondary">Soporte 24/7</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <div class="empty-cart-container text-center py-5">
+            <div class="empty-cart-icon mb-4">
+                <i class="fas fa-shopping-cart fa-5x text-muted opacity-50"></i>
+            </div>
+            <h3 class="fw-bold mb-3">Tu carrito está vacío</h3>
+            <p class="text-muted mb-4">¡Explora nuestra tienda y encuentra productos increíbles!</p>
+            <a href="{{ url_for('store.tienda') }}" class="btn btn-primary btn-lg px-5 py-3 shadow-sm">
+                <i class="fas fa-shopping-bag me-2"></i>Ir a la Tienda
+            </a>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+
+{% block title %}Página No Encontrada - GameTech Store{% endblock %}
+
+{% block content %}
+<section class="error-section py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6 text-center">
+                <div class="error-content">
+                    <div class="error-icon mb-4">
+                        <i class="fas fa-gamepad fa-6x text-muted"></i>
+                    </div>
+                    <h1 class="display-1 fw-bold text-primary mb-4">404</h1>
+                    <h2 class="mb-4">¡Oops! Página no encontrada</h2>
+                    <p class="lead text-muted mb-4">
+                        Parece que el juego que buscas no existe en nuestro catálogo o la página que intentas visitar ya no está disponible.
+                    </p>
+
+                    <div class="error-actions d-flex flex-column flex-sm-row gap-3 justify-content-center mb-5">
+                        <a href="/" class="btn btn-primary btn-lg">
+                            <i class="fas fa-home me-2"></i>Volver al Inicio
+                        </a>
+                        <a href="/tienda" class="btn btn-outline-primary btn-lg">
+                            <i class="fas fa-shopping-bag me-2"></i>Ir a la Tienda
+                        </a>
+                    </div>
+
+                    <!-- Buscador rápido -->
+                    <div class="search-suggestion">
+                        <h5 class="mb-3">¿Buscabas algo específico?</h5>
+                        <form action="/buscar" method="GET" class="d-flex">
+                            <input type="search" name="q" class="form-control me-2" placeholder="Buscar juegos, hardware..." required>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Sugerencias populares -->
+                    <div class="popular-suggestions mt-5">
+                        <h6 class="text-muted mb-3">O prueba estas búsquedas populares:</h6>
+                        <div class="d-flex flex-wrap gap-2 justify-content-center">
+                            <a href="/buscar?q=Cyberpunk" class="btn btn-outline-secondary btn-sm">Cyberpunk 2077</a>
+                            <a href="/buscar?q=RTX" class="btn btn-outline-secondary btn-sm">RTX 4060</a>
+                            <a href="/buscar?q=intel" class="btn btn-outline-secondary btn-sm">Intel Core i5</a>
+                            <a href="/buscar?q=gaming" class="btn btn-outline-secondary btn-sm">Gaming</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Sección de ayuda adicional -->
+<section class="help-section py-5 bg-light">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h3><i class="fas fa-question-circle me-2 text-primary"></i>¿Necesitas ayuda?</h3>
+                <p class="text-muted">
+                    Si no encuentras lo que buscas, nuestro equipo de soporte está aquí para ayudarte.
+                </p>
+                <ul class="list-unstyled">
+                    <li class="mb-2">
+                        <i class="fas fa-envelope me-2 text-primary"></i>
+                        <a href="mailto:soporte@gametechstore.com">soporte@gametechstore.com</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-phone me-2 text-primary"></i>
+                        <a href="tel:+15551234567">+1 (555) 123-4567</a>
+                    </li>
+                    <li class="mb-2">
+                        <i class="fas fa-comments me-2 text-primary"></i>
+                        Chat en vivo disponible 24/7
+                    </li>
+                </ul>
+            </div>
+            <div class="col-md-6">
+                <h3><i class="fas fa-lightbulb me-2 text-warning"></i>Consejos útiles</h3>
+                <div class="tips-list">
+                    <div class="tip-item d-flex mb-3">
+                        <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                        <div>
+                            <strong>Usa nuestro verificador de compatibilidad</strong>
+                            <p class="text-muted small mb-0">Asegúrate de que los juegos funcionen en tu hardware antes de comprar.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item d-flex mb-3">
+                        <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                        <div>
+                            <strong>Explora el configurador de PC</strong>
+                            <p class="text-muted small mb-0">Construye tu PC gaming ideal paso a paso.</p>
+                        </div>
+                    </div>
+                    <div class="tip-item d-flex mb-3">
+                        <i class="fas fa-check-circle text-success me-3 mt-1"></i>
+                        <div>
+                            <strong>Revisa las ofertas especiales</strong>
+                            <p class="text-muted small mb-0">Tenemos descuentos exclusivos en juegos y hardware.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.error-section {
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+}
+
+.error-content {
+    padding: 3rem 0;
+}
+
+.error-icon {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+.search-suggestion {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.popular-suggestions {
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.help-section {
+    border-top: 1px solid #e9ecef;
+}
+
+.tip-item {
+    padding: 1rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+}
+
+@media (max-width: 768px) {
+    .error-section {
+        min-height: 50vh;
+    }
+
+    .display-1 {
+        font-size: 4rem;
+    }
+
+    .error-actions {
+        flex-direction: column;
+    }
+
+    .error-actions .btn {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

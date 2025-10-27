@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Juegos - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-gamepad me-2"></i>Gestión de Juegos</h1>
+        </div>
+        <div class="col text-end">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver al Panel
+            </a>
+            <a href="{{ url_for('admin.new_game') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nuevo Juego
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Título</th>
+                            <th>Género</th>
+                            <th>Plataforma</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Fecha</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for game in games %}
+                        <tr>
+                            <td>{{ game.id }}</td>
+                            <td>
+                                <strong>{{ game.nombre }}</strong><br>
+                                <small class="text-muted">{{ game.desarrollador }}</small>
+                            </td>
+                            <td>{{ game.genero }}</td>
+                            <td>PC</td>
+                            <td>${{ "%.2f"|format(game.precio) }}</td>
+                            <td>
+                                {% if game.stock < 10 %}
+                                <span class="badge bg-danger">{{ game.stock }}</span>
+                                {% elif game.stock < 50 %}
+                                <span class="badge bg-warning">{{ game.stock }}</span>
+                                {% else %}
+                                <span class="badge bg-success">{{ game.stock }}</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ game.fecha_lanzamiento.strftime('%d/%m/%Y') if game.fecha_lanzamiento else 'N/A' }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('admin.edit_game', game_id=game.id) }}" 
+                                       class="btn btn-sm btn-warning" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger" 
+                                            onclick="confirmDelete('{{ game.id }}', '{{ game.nombre }}')" 
+                                            title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">No hay juegos registrados</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar el juego <strong id="gameName"></strong>?</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(gameId, gameName) {
+    document.getElementById('gameName').textContent = gameName;
+    document.getElementById('deleteForm').action = `/admin/games/${gameId}/delete`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block title %}Gestión de Hardware - Admin{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h1><i class="fas fa-microchip me-2"></i>Gestión de Hardware</h1>
+        </div>
+        <div class="col text-end">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left me-2"></i>Volver al Panel
+            </a>
+            <a href="{{ url_for('admin.new_hardware') }}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>Nuevo Hardware
+            </a>
+        </div>
+    </div>
+
+    <div class="card shadow">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Categoría</th>
+                            <th>Marca</th>
+                            <th>Modelo</th>
+                            <th>Precio</th>
+                            <th>Stock</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for hw in hardware_items %}
+                        <tr>
+                            <td>{{ hw.id }}</td>
+                            <td><strong>{{ hw.marca }} {{ hw.modelo }}</strong></td>
+                            <td>{{ hw.tipo }}</td>
+                            <td>{{ hw.marca }}</td>
+                            <td>{{ hw.modelo }}</td>
+                            <td>${{ "%.2f"|format(hw.precio) }}</td>
+                            <td>
+                                {% if hw.stock < 10 %}
+                                <span class="badge bg-danger">{{ hw.stock }}</span>
+                                {% elif hw.stock < 50 %}
+                                <span class="badge bg-warning">{{ hw.stock }}</span>
+                                {% else %}
+                                <span class="badge bg-success">{{ hw.stock }}</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('admin.edit_hardware', hardware_id=hw.id) }}" 
+                                       class="btn btn-sm btn-warning" title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button type="button" class="btn btn-sm btn-danger" 
+                                            onclick="confirmDelete('{{ hw.id }}', '{{ hw.marca }} {{ hw.modelo }}')" 
+                                            title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted">No hay hardware registrado</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de confirmación -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmar Eliminación</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>¿Estás seguro de que deseas eliminar el hardware <strong id="hardwareName"></strong>?</p>
+                <p class="text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Esta acción no se puede deshacer.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="deleteForm" method="POST" style="display: inline;">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                    <button type="submit" class="btn btn-danger">Eliminar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmDelete(hardwareId, hardwareName) {
+    document.getElementById('hardwareName').textContent = hardwareName;
+    document.getElementById('deleteForm').action = `/admin/hardware/${hardwareId}/delete`;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+{% endblock %}

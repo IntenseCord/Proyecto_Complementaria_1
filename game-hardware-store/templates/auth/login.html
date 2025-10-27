@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Iniciar Sesión - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-gradient-primary text-white text-center">
+                    <h3><i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión</h3>
+                </div>
+                <div class="card-body p-4">
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <div class="alert alert-{{ category }} alert-dismissible fade show" role="alert">
+                                    {{ message }}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+
+                    <form method="POST" action="{{ url_for('auth.login') }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                        <div class="mb-3">
+                            <label for="username" class="form-label fw-bold text-dark">
+                                <i class="fas fa-user me-2"></i>Usuario
+                            </label>
+                            <input type="text" class="form-control" id="username" name="username" placeholder="Ingresa tu usuario" required autofocus>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label fw-bold text-dark">
+                                <i class="fas fa-lock me-2"></i>Contraseña
+                            </label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Ingresa tu contraseña" required>
+                        </div>
+
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                            <label class="form-check-label text-dark" for="remember">
+                                Recordarme
+                            </label>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Iniciar Sesión
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="text-center">
+                        <p class="mb-0 text-dark">¿No tienes una cuenta? 
+                            <a href="{{ url_for('auth.registro') }}" class="text-primary fw-bold text-decoration-none">Regístrate aquí</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

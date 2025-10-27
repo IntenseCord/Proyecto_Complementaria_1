@@ -1,0 +1,392 @@
+{% extends "base.html" %}
+
+{% block title %}{{ componente.marca }} {{ componente.modelo }} - GameTech Store{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Información del Hardware -->
+    <div class="col-lg-8">
+        <div class="card mb-4">
+            <div class="row g-0">
+                <div class="col-md-6">
+                    <img src="{{ componente.imagen }}" class="img-fluid rounded-start h-100 object-cover" alt="{{ componente.modelo }}">
+                </div>
+                <div class="col-md-6">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-3">
+                            <div>
+                                <h1 class="card-title mb-2">{{ componente.marca }} {{ componente.modelo }}</h1>
+                                <span class="badge bg-info fs-6">{{ componente.tipo }}</span>
+                            </div>
+                        </div>
+
+                        <p class="card-text lead">{{ componente.descripcion }}</p>
+
+                        <!-- Especificaciones técnicas detalladas -->
+                        <div class="specs-section mb-4">
+                            <h5 class="mb-3">Especificaciones Técnicas</h5>
+                            <div class="specs-grid">
+                                {% for spec, value in componente.especificaciones_dict.items() %}
+                                <div class="spec-item">
+                                    <span class="spec-label">{{ spec.replace('_', ' ').title() }}:</span>
+                                    <span class="spec-value">{{ value }}</span>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-primary btn-lg flex-fill" id="add-to-cart-btn">
+                                <i class="fas fa-shopping-cart me-2"></i>
+                                Agregar al carrito - ${{ "%.2f"|format(componente.precio) }}
+                            </button>
+                            <button class="btn btn-outline-secondary btn-lg" id="add-to-wishlist-btn">
+                                <i class="fas fa-heart me-2"></i>Lista de deseos
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Juegos compatibles con este hardware -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-gamepad me-2"></i>Juegos Compatibles</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3" id="compatible-games">
+                    <!-- Los juegos compatibles se cargarán aquí -->
+                </div>
+                <div class="text-center" id="loading-games" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Cargando juegos compatibles...</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Verificador de compatibilidad específico -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-search me-2"></i>Verificar Compatibilidad con tu Setup</h5>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    Ingresa las especificaciones de tu PC actual para verificar si este componente es compatible y mejorará tu experiencia gaming.
+                </p>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <label class="form-label">Tu procesador actual</label>
+                        <input type="text" class="form-control" id="current-cpu" placeholder="Ej: Intel Core i5-10400F">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tu tarjeta gráfica actual</label>
+                        <input type="text" class="form-control" id="current-gpu" placeholder="Ej: NVIDIA GTX 1660">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tu memoria RAM</label>
+                        <input type="text" class="form-control" id="current-ram" placeholder="Ej: 16 GB DDR4">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Tu placa base</label>
+                        <input type="text" class="form-control" id="current-motherboard" placeholder="Ej: ASUS B450-F">
+                    </div>
+                </div>
+
+                <button class="btn btn-primary" id="check-compatibility-btn">
+                    <i class="fas fa-search me-2"></i>Verificar Compatibilidad
+                </button>
+
+                <div id="compatibility-result" class="mt-4" style="display: none;">
+                    <!-- Resultados se mostrarán aquí -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Precio y disponibilidad -->
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <h2 class="text-primary mb-3">${{ "%.2f"|format(componente.precio) }}</h2>
+                <div class="availability mb-3">
+                    <span class="badge bg-success fs-6">
+                        <i class="fas fa-check-circle me-1"></i>Disponible
+                    </span>
+                </div>
+                <div class="delivery-info">
+                    <p class="mb-2"><i class="fas fa-truck me-2"></i>Envío gratis en compras mayores a $100</p>
+                    <p class="mb-2"><i class="fas fa-shield-alt me-2"></i>Garantía de 2 años incluida</p>
+                    <p class="mb-0"><i class="fas fa-undo me-2"></i>Devolución gratuita en 30 días</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Hardware relacionado -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="fas fa-th-large me-2"></i>{{ componente.tipo }} Relacionados</h5>
+            </div>
+            <div class="card-body">
+                {% for relacionado in hardware_relacionado %}
+                <div class="d-flex mb-3">
+                    <img src="{{ relacionado.imagen }}" class="img-thumbnail me-3" style="width: 60px; height: 60px;" alt="{{ relacionado.modelo }}">
+                    <div class="flex-grow-1">
+                        <h6 class="mb-1"><a href="/hardware/{{ relacionado.id }}" class="text-decoration-none">{{ relacionado.marca }} {{ relacionado.modelo }}</a></h6>
+                        <p class="text-muted small mb-0">{{ relacionado.tipo }}</p>
+                        <span class="text-primary small">${{ "%.2f"|format(relacionado.precio) }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Comparador -->
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="mb-3"><i class="fas fa-balance-scale me-2"></i>Comparar Productos</h5>
+                <p class="text-muted mb-3">Compara este componente con otros similares</p>
+                <button class="btn btn-outline-primary" id="compare-btn">
+                    <i class="fas fa-plus me-2"></i>Agregar a Comparación
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Botones de acción
+    document.getElementById('add-to-cart-btn').addEventListener('click', function() {
+        showToast(`${"{{ componente.marca }}"} ${"{{ componente.modelo }}"} agregado al carrito`, 'success');
+    });
+
+    document.getElementById('add-to-wishlist-btn').addEventListener('click', function() {
+        showToast('Agregado a lista de deseos', 'info');
+    });
+
+    document.getElementById('compare-btn').addEventListener('click', function() {
+        showToast('Agregado para comparación', 'info');
+    });
+
+    // Verificador de compatibilidad
+    document.getElementById('check-compatibility-btn').addEventListener('click', function() {
+        const currentCpu = document.getElementById('current-cpu').value;
+        const currentGpu = document.getElementById('current-gpu').value;
+        const currentRam = document.getElementById('current-ram').value;
+        const currentMotherboard = document.getElementById('current-motherboard').value;
+
+        if (!currentCpu && !currentGpu && !currentRam && !currentMotherboard) {
+            alert('Por favor ingresa al menos una especificación de tu PC actual.');
+            return;
+        }
+
+        const resultDiv = document.getElementById('compatibility-result');
+        resultDiv.style.display = 'block';
+        resultDiv.innerHTML = '<div class="text-center"><div class="spinner-border text-primary" role="status"></div></div>';
+
+        // Simular verificación de compatibilidad
+        setTimeout(() => {
+            const componenteTipo = "{{ componente.tipo }}";
+            let compatible = true;
+            let mensaje = '';
+
+            switch(componenteTipo) {
+                case 'CPU':
+                    if (currentMotherboard && !currentMotherboard.toLowerCase().includes('intel') && "{{ componente.marca }}" === 'Intel') {
+                        compatible = false;
+                        mensaje = 'Tu placa base no es compatible con procesadores Intel.';
+                    } else {
+                        mensaje = 'El procesador es compatible con tu setup actual.';
+                    }
+                    break;
+                case 'GPU':
+                    mensaje = 'La tarjeta gráfica es compatible con la mayoría de sistemas modernos.';
+                    break;
+                case 'RAM':
+                    mensaje = 'La memoria RAM es compatible con la mayoría de placas base DDR4.';
+                    break;
+                case 'Placa Madre':
+                    mensaje = 'Verifica que el socket sea compatible con tu procesador.';
+                    break;
+                default:
+                    mensaje = 'Componente compatible con tu sistema.';
+            }
+
+            if (compatible) {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle me-2"></i>
+                        <strong>¡Compatible!</strong> ${mensaje}
+                    </div>
+                `;
+            } else {
+                resultDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Posible incompatibilidad:</strong> ${mensaje}
+                    </div>
+                `;
+            }
+        }, 1500);
+    });
+
+    function showToast(message, type) {
+        const toast = document.createElement('div');
+        toast.className = `toast align-items-center text-white bg-${type} border-0`;
+        toast.innerHTML = `
+            <div class="d-flex">
+                <div class="toast-body">${message}</div>
+                <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+            </div>
+        `;
+
+        document.body.appendChild(toast);
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+
+        setTimeout(() => {
+            if (document.body.contains(toast)) {
+                document.body.removeChild(toast);
+            }
+        }, 3000);
+    }
+});
+</script>
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* Asegurar que el card tenga fondo blanco y texto oscuro */
+.card {
+    background: #ffffff !important;
+    color: #212529 !important;
+}
+
+.card-body {
+    background: #ffffff !important;
+}
+
+.card-title {
+    color: #212529 !important;
+}
+
+.card-text {
+    color: #495057 !important;
+}
+
+.specs-section {
+    background: #f8f9fa !important;
+    padding: 1.5rem;
+    border-radius: 10px;
+}
+
+.specs-section h5 {
+    color: #212529 !important;
+    font-weight: 600;
+}
+
+.specs-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.spec-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.spec-item:last-child {
+    border-bottom: none;
+}
+
+.spec-label {
+    font-weight: 600;
+    color: #495057 !important;
+    background: transparent !important;
+    padding: 0.25rem 0.5rem;
+}
+
+.spec-value {
+    color: #0d6efd !important;
+    font-weight: 500;
+    background: transparent !important;
+    padding: 0.25rem 0.5rem;
+}
+
+.availability {
+    margin-bottom: 1rem;
+}
+
+.delivery-info {
+    background: #f8f9fa !important;
+    padding: 1rem;
+    border-radius: 8px;
+    text-align: left;
+}
+
+.delivery-info p {
+    color: #495057 !important;
+}
+
+.card-header {
+    background: #ffffff !important;
+    color: #212529 !important;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.card-header h5 {
+    color: #212529 !important;
+}
+
+.object-cover {
+    object-fit: cover;
+    min-height: 300px;
+}
+
+@media (max-width: 768px) {
+    .card-title {
+        font-size: 1.5rem;
+    }
+
+    .spec-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.25rem;
+    }
+
+    .delivery-info {
+        font-size: 0.875rem;
+    }
+}
+
+/* Sobrescribir estilos de modo oscuro para esta página */
+@media (prefers-color-scheme: dark) {
+    .card,
+    .card-body,
+    .card-header,
+    .specs-section,
+    .delivery-info {
+        background: #ffffff !important;
+        color: #212529 !important;
+    }
+    
+    .card-title,
+    .card-text,
+    .spec-label,
+    .spec-value,
+    h1, h2, h3, h4, h5, h6,
+    p, span {
+        color: inherit !important;
+    }
+}
+</style>
+{% endblock %}
