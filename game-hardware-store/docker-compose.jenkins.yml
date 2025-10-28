@@ -6,7 +6,6 @@ services:
     container_name: jenkins
     privileged: true
     user: root
-    network_mode: bridge
     ports:
       - "8080:8080"
       - "50000:50000"
@@ -19,6 +18,8 @@ services:
     dns:
       - 8.8.8.8
       - 8.8.4.4
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
 volumes:
   jenkins_home:
